@@ -1,0 +1,6 @@
+bioread==3.0.1
+matplotlib==3.8.0
+numpy==2.1.3
+pandas==2.2.3
+plotly==5.22.0
+xlwings==0.29.1
