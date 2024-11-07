@@ -1,4 +1,4 @@
-#Latest code as of 10.29.24
+#This is SpikeSPY V1.2.2
 #------------------------------------------------------------------------------------------------------------
 import bioread
 import numpy as np
@@ -150,19 +150,26 @@ def SpikeSpy(file_name, test, datafolder, low_freq, high_freq, threshold, reset_
 		fig.add_trace(go.Scatter(x=peakdf['Time (seconds)'], y=peakdf['Data'], mode='markers', marker={'color': 'lightsalmon'}, name='Seizure Activity'))
 		fig.add_trace(go.Scatter(x=list(range(0, int(datadf2['Time (seconds)'].values.max()), 5)), y=[threshold for i in list(range(0, int(datadf2['Time (seconds)'].values.max()), 5))], mode='lines', line={'dash': 'dash'}, name=f'Threshold ({threshold}mV)'))
 
-		# Draw rectangles around each continuous or discrete event
+		# Collect shapes in a list to batch add them
+		shapes = []
 		for start, end in zip(merged_starts, merged_ends):
-			# Adjust end for discrete events
 			if end == start:
-				end = start + window_size  # Adjust to mark as full window size for discrete events
+				end = start + (window_size / sampling_rate)
 
-			fig.add_shape(
+			# Append each shape to the list instead of adding directly to the figure
+			shapes.append(dict(
 				type="rect",
-				x0=start, y0=-2, x1=end, y1=2,
+				x0=start,
+				y0=-2,
+				x1=end,
+				y1=2,
 				line=dict(color="LightSalmon"),
 				fillcolor="Salmon",
 				opacity=0.5
-			)
+			))
+
+		# Add all shapes to the figure at once
+		fig.update_layout(shapes=shapes)
 
 		fig.update_layout(template="plotly_dark", title=fig_nammer, xaxis_title='Time (seconds)', yaxis_title='Signal (mV)')
 		fig.write_html(main_dir + f'\\Traces\\{fig_nammer}.html')
